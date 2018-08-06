@@ -1,0 +1,217 @@
+---
+title: "Mad Lib Mother Goose"
+author: "Sujata Emani"
+date: "August 2, 2018"
+font-family: 'Times'
+output: html_document
+#output: slidy_presentation: incremental = true
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+***
+## Shiny Project: MadLib Mother Goose
+
+According to Wikipedia Mad Libs are: _a phrasal template word game where one player prompts others for a list of words to substitute for blanks in a story, before reading the - often comical or nonsensical - story aloud. The game is frequently played as a party game or as a pastime._
+
+Here we can enjoy a few Mad Libs with a Mother Goose poem. You won't know the poem of course until you play with the application. 
+
+***
+## The Goal
+
+The Goal of this Project is multi-fold.
+    1.  Write a Shiny App
+    2.  Utilize Shiny Widgets
+    3.  Employ Reactive functions
+    4.  Deploy the app on the RStudio Shiny server
+    5.  Create Slides to explain the Shiny app
+
+***    
+## The Code Segments: ui 
+
+```{r The Code, echo = TRUE, eval = FALSE, strip.white= TRUE}
+library(shiny)
+source("madlibRhyme.R")
+
+ui <- fluidPage(
+        titlePanel("MadLib Nursery Rhymes"),
+        sidebarLayout(
+            sidebarPanel(
+                helpText("MadLibs are funny stories or poems formed 
+                        when you supply various words of different
+                        parts of speech without knowing what the 
+                        story is before hand."),
+                selectInput("select", label = h4("Select which Rhyme"),
+                            choices = list ("Rhyme 1", "Rhyme 2", "Rhyme 3"),
+                            selected = "Rhyme 1"),
+                
+                textInput(inputId = "noun1", label = NULL, value = "Enter a proper Name..."),
+                textInput(inputId = "noun2", label = NULL, value = "Enter a place..."),
+                textInput(inputId = "noun3", label = NULL, value = "Enter an animal..."),
+                textInput(inputId = "adj1", label = NULL, value = "Enter an adjective..."),
+                textInput(inputId = "adj2", label = NULL, value = "Enter an adjective..."),
+                textInput(inputId = "adj3", label = NULL, value = "Enter an adjective..."),
+                textInput(inputId = "verb1", label = NULL, value = "Enter a verb in present tense..."),
+                textInput(inputId = "verb2", label = NULL, value = "Enter a verb in past tense..."),
+                textInput(inputId = "verb3", label = NULL, value = "Enter a verb in past tense..."),
+                helpText("Click \"MadLib!\" to start!"),
+                actionButton("goButton", "MadLib!")
+            ), 
+            mainPanel(
+                h2("Your Mother Goose Madlib!"),
+                h3(textOutput("text")),
+                tags$head(tags$style("#text{color: red;
+                                 font-size: 20px;
+                                     font-style: italic;
+                                     }"
+                         )
+                )
+            )
+        )
+       
+)
+```
+
+***
+## The Code Segment: server
+
+```{r Code Segment: server, echo=TRUE, eval = FALSE, strip.white=TRUE}
+server <- function(input, output) {
+    
+    output$text <- renderText({
+        mlrhymeInput()
+    })
+    mlrhymeInput <- eventReactive(input$goButton, {
+        selectedRhyme <- switch(input$select, 
+                                "Rhyme 1" = 1,
+                                "Rhyme 2" = 2,
+                                "Rhyme 3" = 3)
+        madlibVector <- c(input$noun1, input$noun2, input$noun3, input$adj1, input$adj2,
+                          input$adj3, input$verb1, input$verb2, input$verb3)
+        
+        madlibRhyme(selectedRhyme, madlibVector)
+    })
+}
+```
+
+***
+## Additional Code Segment: madlibRhyme
+
+```{r Code Segment: madlibRhyme, echo = TRUE, eval = FALSE, strip.white=TRUE}
+madlibRhyme <- function(rhymenum, words){
+    if(rhymenum == 1){
+        Rhyme1 <- paste(words[1],", ", words[1], ", pumpkin eater,", words[8], "a ", words[3], 
+                    "and couldn\'t keep her;", words[1], "put her in a ", words[4],
+                    " shell, and there ", words[1], " ", words[9], " her very well.")
+        return(Rhyme1)
+    }
+    if(rhymenum == 2){
+        Rhyme2 <- paste("There was an ", words[5]," woman who lived in ", words[2], 
+                    " had so many ", words[3],"s , she didn't know what to do. She ",
+                    words[7], " them some broth without any bread, then ", words[8], 
+                    " them all soundly and ", words[9]," them to bed.")
+        return(Rhyme2)
+    }
+    if(rhymenum == 3){
+        Rhyme3 <- paste(words[3],", ", words[3], " where have you been?", " I've been to ", 
+                    words[2], " to ", words[7], " ", words[1],". ", words[3],", ", words[3], 
+                    " what did you do there?", " I ", words[8], " a ", words[6], 
+                    " mouse under a chair.")
+        return(Rhyme3)
+    }
+}
+```
+
+***
+## The Shiny App: Mad Lib Mother Goose
+
+```{r Additional Code, echo = FALSE}
+madlibRhyme <- function(rhymenum, words){
+    if(rhymenum == 1){
+        Rhyme1 <- paste(words[1],", ", words[1], ", pumpkin eater,", words[8], "a ", words[3], 
+                    "and couldn\'t keep her;", words[1], "put her in a ", words[4],
+                    " shell, and there ", words[1], " ", words[9], " her very well.")
+        return(Rhyme1)
+    }
+    if(rhymenum == 2){
+        Rhyme2 <- paste("There was an ", words[5]," woman who lived in ", words[2], 
+                    " had so many ", words[3],"s , she didn't know what to do. She ",
+                    words[7], "s them some broth without any bread, then ", words[8], 
+                    " them all soundly and ", words[9]," them to bed.", sep = "")
+        return(Rhyme2)
+    }
+    if(rhymenum == 3){
+        Rhyme3 <- paste(words[3],", ", words[3], " where have you been?", " I've been to ", 
+                    words[2], " to ", words[7], " ", words[1],". ", words[3],", ", words[3], 
+                    " what did you do there?", " I ", words[8], " a ", words[6], 
+                    " mouse under a chair.")
+        return(Rhyme3)
+    }
+}
+```
+
+```{r The App: ui, echo = FALSE}
+library(shiny)
+source("madlibRhyme.R")
+
+ui <- fluidPage(
+        titlePanel("MadLib Nursery Rhymes"),
+        sidebarLayout(
+            sidebarPanel(
+                helpText("MadLibs are funny stories or poems formed 
+                        when you supply various words of different
+                        parts of speech without knowing what the 
+                        story is before hand."),
+                selectInput("select", label = h4("Select which Rhyme"),
+                            choices = list ("Rhyme 1", "Rhyme 2", "Rhyme 3"),
+                            selected = "Rhyme 1"),
+                
+                textInput(inputId = "noun1", label = NULL, value = "Enter a proper Name..."),
+                textInput(inputId = "noun2", label = NULL, value = "Enter a place..."),
+                textInput(inputId = "noun3", label = NULL, value = "Enter an animal..."),
+                textInput(inputId = "adj1", label = NULL, value = "Enter an adjective..."),
+                textInput(inputId = "adj2", label = NULL, value = "Enter an adjective..."),
+                textInput(inputId = "adj3", label = NULL, value = "Enter an adjective..."),
+                textInput(inputId = "verb1", label = NULL, value = "Enter a verb in present tense..."),
+                textInput(inputId = "verb2", label = NULL, value = "Enter a verb in past tense..."),
+                textInput(inputId = "verb3", label = NULL, value = "Enter a verb in past tense..."),
+                helpText("Click \"MadLib!\" to start!"),
+                actionButton("goButton", "MadLib!")
+            ), 
+            mainPanel(
+                h2("Your Mother Goose Madlib!"),
+                h3(textOutput("text")),
+                tags$head(tags$style("#text{color: red;
+                                 font-size: 20px;
+                                     font-style: italic;
+                                     }"
+                         )
+                )
+            )
+        )
+       
+)
+```
+
+```{r Server, echo = FALSE}
+server <- function(input, output) {
+    output$text <- renderText({
+        mlrhymeInput()
+    })
+    mlrhymeInput <- eventReactive(input$goButton, {
+        selectedRhyme <- switch(input$select, 
+                                "Rhyme 1" = 1,
+                                "Rhyme 2" = 2,
+                                "Rhyme 3" = 3)
+        madlibVector <- c(input$noun1, input$noun2, input$noun3, input$adj1, input$adj2,
+                          input$adj3, input$verb1, input$verb2, input$verb3)
+        
+        madlibRhyme(selectedRhyme, madlibVector)
+    })
+}
+shinyApp(ui = ui, server = server)
+```
+
+## Thank you for playing with the Mad Lib Mother Goose application!
